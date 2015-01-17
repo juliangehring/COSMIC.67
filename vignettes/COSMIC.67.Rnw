@@ -1,0 +1,164 @@
+% Created 2013-12-02 Mon 23:12
+\documentclass{article}
+<<style, eval=TRUE, echo=FALSE, results="asis">>=
+BiocStyle::latex()
+@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\author{Julian Gehring, EMBL Heidelberg}
+\date{\today}
+\title{COSMIC 67}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 24.1.1 (Org mode 8.2.3c)}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{COSMIC.67 - PDF}
+%\VignettePackage{COSMIC.67}
+
+<<echo=FALSE, results='hide'>>=
+set.seed(1)
+options(width=65)
+library(knitr)
+opts_chunk$set(background = "#FFFFFF", comment = NA, fig.path = "")
+@ %def
+
+
+\section{Introduction}
+\label{sec-1}
+
+The \Biocpkg{COSMIC.67} package provides the curated mutations published
+with the COSMIC release version 67 (2013-10-24).  Both variants found in coding
+and non-coding regions are included and offered as a single object of class
+'CollapsedVCF' and a bgzipped and tabix-index 'VCF' file.
+
+Additionally, the package contains the Cancer Gene Census, a list of genes
+causally linked to cancer.
+
+\section{Accessing and Using the Data}
+\label{sec-2}
+
+<<load_packages,results='hide'>>=
+library(VariantAnnotation)
+library(GenomicRanges)
+@ %def
+
+<<load_data>>=
+data(package = "COSMIC.67")
+data(cosmic_67, package = "COSMIC.67")
+@ %def
+
+<<overlap_with_tp53>>=
+tp53_range = GRanges("17", IRanges(7565097, 7590856))
+vcf_path = system.file("vcf", "cosmic_67.vcf.gz", package = "COSMIC.67")
+cosmic_tp53 = readVcf(vcf_path, genome = "GRCh37", ScanVcfParam(which = tp53_range))
+cosmic_tp53
+@ %def
+
+<<CGC>>=
+data(cgc_67, package = "COSMIC.67")
+head(cgc_67)
+@ %def
+
+For details on the collection and curation of the original data,
+please see the webpage of the COSMIC project:
+\url{http://cancer.sanger.ac.uk/cancergenome/projects/cosmic/}.
+\section{Data Provenance}
+\label{sec-3}
+
+\subsection{COSMIC Mutations}
+\label{sec-3-1}
+
+The following steps are performed for importing and processing of the
+VCF data:
+
+\begin{enumerate}
+\item Downloading of the VCF files 'CosmicCodingMuts\_v67\_20131024.vcf.gz'
+and 'CosmicNonCodingVariants\_v67\_20131024.vcf.gz' from
+'ftp://ngs.sanger.ac.uk/production/cosmic/' to 'inst/raw/'.
+
+\item Importing of both files to R using 'readVcf'.
+
+\item Sorting of the seqlevels and adding 'seqinfo' data for the toplevel
+chromosomes of 'GRCh37'.
+
+\item Merging of both objects, sorting according to genomic position.
+
+\item Converting the object to class \texttt{VariantAnnotation::VRanges}.
+
+\item Converting the 'character' columns to 'factors'.
+
+\item Saving the merged object to 'data/cosmic\_v67\_vcf.rda'.
+
+\item Exporting the merged object as a bgzipped and tabix-indexed 'VCF'
+to 'inst/vcf/cosmic\_v67.vcf.gz'.
+\end{enumerate}
+
+\subsection{Cancer Gene Census}
+\label{sec-3-2}
+
+The following steps are performed for importing and processing of the
+Cancer Gene Census data:
+
+\begin{enumerate}
+\item Downloading of the 'cancer\_gene\_census.tsv' file from
+   \url{ftp://ftp.sanger.ac.uk/pub/CGP/cosmic/data_export} to 'inst/raw'.
+
+\item Import of the files as a data frame.
+
+\item Annotation of the 'HGNC' and 'ENSEMBLID' identifiers, using the
+'ENTREZ gene ID' as query with the 'org.Hs.eg.db' object.
+
+\item Saving the object to 'data/cgc\_67.rda'.
+\end{enumerate}
+\section{Data Source}
+\label{sec-4}
+
+The mutation data was obtained from the Sanger Institute Catalogue Of
+Somatic Mutations In Cancer web site, \url{http://www.sanger.ac.uk/cosmic}
+
+\href{http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2409828/}{Bamford et al (2004):\\
+The COSMIC (Catalogue of Somatic Mutations in Cancer) database and website.\\
+Br J Cancer, 91,355-358.}
+
+For details on the usage and redistribution of the data, please see
+\url{ftp://ftp.sanger.ac.uk/pub/CGP/cosmic/GUIDELINES_ON_THE_USE_OF_THIS_DATA.txt}.
+
+\section{References}
+\label{sec-5}
+
+\begin{itemize}
+\item \url{http://cancer.sanger.ac.uk/cancergenome/projects/cosmic/}
+
+\item \url{http://nar.oxfordjournalls.org/content/39/suppl_1/D945.long}
+
+\item \url{ftp://ftp.sanger.ac.uk/pub/CGP/cosmic/GUIDELINES_ON_THE_USE_OF_THIS_DATA.txt}
+\end{itemize}
+
+\section{Session Info}
+\label{sec-6}
+
+<<echo=FALSE>>=
+sessionInfo()
+@ %def
+% Emacs 24.1.1 (Org mode 8.2.3c)
+\end{document}
